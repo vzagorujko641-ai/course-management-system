@@ -1,0 +1,153 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистика LMS</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .chart-box{
+            background:var(--card);
+            padding:30px;
+            border-radius:22px;
+            box-shadow:var(--shadow);
+            transition:.3s;
+        }
+
+        .charts{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+            gap:25px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <h1>Статистика системи</h1>
+    <p>Аналітична панель інформаційної системи управління курсами</p>
+</header>
+
+<div class="container">
+
+    <div class="grid">
+
+        <div class="card">
+            <p>Курси</p>
+            <div class="number">{{ total_courses }}</div>
+        </div>
+
+        <div class="card">
+            <p>Студенти</p>
+            <div class="number">{{ total_students }}</div>
+        </div>
+
+        <div class="card">
+            <p>Завдання</p>
+            <div class="number">{{ total_assignments }}</div>
+        </div>
+
+        <div class="card">
+            <p>Відповіді</p>
+            <div class="number">{{ total_submissions }}</div>
+        </div>
+
+        <div class="card">
+            <p>Середня оцінка</p>
+            <div class="number">{{ average_grade }}</div>
+        </div>
+
+    </div>
+
+    <div class="charts">
+
+        <div class="chart-box">
+            <h2>Загальна активність системи</h2>
+            <canvas id="activityChart"></canvas>
+        </div>
+
+        <div class="chart-box">
+            <h2>Розподіл оцінок</h2>
+            <canvas id="gradesChart"></canvas>
+        </div>
+
+    </div>
+
+    <br>
+
+    <a href="/" class="btn btn-dark">
+        На головну
+    </a>
+
+</div>
+
+<script>
+    const activityCtx = document.getElementById('activityChart');
+
+    new Chart(activityCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Курси', 'Студенти', 'Завдання', 'Відповіді'],
+            datasets: [{
+                label: 'Кількість',
+                data: [
+                    {{ total_courses }},
+                    {{ total_students }},
+                    {{ total_assignments }},
+                    {{ total_submissions }}
+                ],
+                backgroundColor: [
+                    '#2563eb',
+                    '#1d4ed8',
+                    '#38bdf8',
+                    '#0f172a'
+                ],
+                borderRadius: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    const gradesCtx = document.getElementById('gradesChart');
+
+    new Chart(gradesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['0-59', '60-74', '75-89', '90-100'],
+            datasets: [{
+                label: 'Оцінки',
+                data: [
+                    {{ grade_0_59 }},
+                    {{ grade_60_74 }},
+                    {{ grade_75_89 }},
+                    {{ grade_90_100 }}
+                ],
+                backgroundColor: [
+                    '#ef4444',
+                    '#f59e0b',
+                    '#2563eb',
+                    '#22c55e'
+                ]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

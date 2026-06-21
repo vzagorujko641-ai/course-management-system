@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Модулі курсу{% endblock %}
+{% block header %}Модулі курсу{% endblock %}
+{% block subtitle %}Розділи для структурованого проходження уроків{% endblock %}
+
+{% block content %}
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="module">
+        {{ module_form.as_p }}
+        <button type="submit" class="btn">Створити модуль</button>
+    </form>
+</div>
+
+<div class="grid">
+    {% for module in teacher_modules %}
+        <div class="card">
+            <h3>{{ module.title }}</h3>
+            <p>{{ module.course.title }}</p>
+            <span class="badge badge-blue">Порядок: {{ module.order }}</span>
+        </div>
+    {% empty %}
+        <div class="empty">Модулів поки немає.</div>
+    {% endfor %}
+</div>
+{% endblock %}

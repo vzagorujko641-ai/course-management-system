@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Розклад занять{% endblock %}
+{% block header %}Розклад занять{% endblock %}
+{% block subtitle %}Планування онлайн- і офлайн-занять{% endblock %}
+
+{% block content %}
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="schedule">
+        {{ schedule_form.as_p }}
+        <button type="submit" class="btn">Додати заняття</button>
+    </form>
+</div>
+
+<div class="timeline">
+    {% for event in schedule_events %}
+        <div class="card timeline-item">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.course.title }}</p>
+            <span class="badge badge-green">{{ event.starts_at }}</span>
+            {% if event.location %}<p>{{ event.location }}</p>{% endif %}
+        </div>
+    {% empty %}
+        <div class="empty">Занять у розкладі поки немає.</div>
+    {% endfor %}
+</div>
+{% endblock %}

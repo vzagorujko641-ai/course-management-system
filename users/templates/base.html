@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduCourse{% endblock %}</title>
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=navy-10">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<header class="header app-header">
+    <div class="brand-block">
+        <a href="/" class="brand-mark">EduCourse</a>
+        <h1>{% block header %}&#1053;&#1072;&#1074;&#1095;&#1072;&#1083;&#1100;&#1085;&#1080;&#1081; &#1087;&#1086;&#1088;&#1090;&#1072;&#1083;{% endblock %}</h1>
+        <p>{% block subtitle %}&#1050;&#1091;&#1088;&#1089;&#1080;, &#1079;&#1072;&#1074;&#1076;&#1072;&#1085;&#1085;&#1103;, &#1090;&#1077;&#1089;&#1090;&#1080; &#1090;&#1072; &#1072;&#1085;&#1072;&#1083;&#1110;&#1090;&#1080;&#1082;&#1072; &#1074; &#1086;&#1076;&#1085;&#1086;&#1084;&#1091; &#1087;&#1088;&#1086;&#1089;&#1090;&#1086;&#1088;&#1110;{% endblock %}</p>
+    </div>
+    <nav class="top-nav">
+        <a href="/" class="nav-link">&#1043;&#1086;&#1083;&#1086;&#1074;&#1085;&#1072;</a>
+        <a href="/courses/" class="nav-link">&#1050;&#1072;&#1090;&#1072;&#1083;&#1086;&#1075;</a>
+        {% if user.is_authenticated %}
+            <a href="/dashboard/" class="nav-link">&#1052;&#1110;&#1081; &#1082;&#1072;&#1073;&#1110;&#1085;&#1077;&#1090;</a>
+            <a href="/my-progress/" class="nav-link">&#1052;&#1110;&#1081; &#1087;&#1088;&#1086;&#1075;&#1088;&#1077;&#1089;</a>
+            <a href="/calendar/" class="nav-link">&#1044;&#1077;&#1076;&#1083;&#1072;&#1081;&#1085;&#1080;</a>
+            <a href="/gradebook/" class="nav-link">&#1054;&#1094;&#1110;&#1085;&#1082;&#1080;</a>
+            {% if user.role == 'teacher' or user.is_superuser %}
+                <a href="/teacher-dashboard/" class="nav-link nav-link-primary">&#1042;&#1080;&#1082;&#1083;&#1072;&#1076;&#1072;&#1095;</a>
+            {% endif %}
+        {% else %}
+            <a href="/login/" class="nav-link nav-link-primary">&#1059;&#1074;&#1110;&#1081;&#1090;&#1080;</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+
+<script src="{% static 'js/theme.js' %}?v=navy-10"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("{% static 'js/service-worker.js' %}?v=navy-10");
+    }
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

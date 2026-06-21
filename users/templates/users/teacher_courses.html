@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Курси викладача{% endblock %}
+{% block header %}Курси{% endblock %}
+{% block subtitle %}Ваші навчальні курси, статуси, студенти та матеріали{% endblock %}
+
+{% block content %}
+<div class="card">
+    <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+    <a href="/teacher-dashboard/create-course/" class="btn">Створити курс</a>
+</div>
+
+<div class="grid">
+    {% for course in teacher_courses %}
+        <div class="card">
+            <h3>{{ course.title }}</h3>
+            <p>{{ course.description }}</p>
+            <p>
+                {% if course.status == 'published' %}
+                    <span class="badge badge-green">Опубліковано</span>
+                {% elif course.status == 'archived' %}
+                    <span class="badge badge-yellow">Архівовано</span>
+                {% else %}
+                    <span class="badge badge-blue">Приховано</span>
+                {% endif %}
+                {% if not course.is_visible %}
+                    <span class="badge badge-yellow">Не показується студентам</span>
+                {% endif %}
+            </p>
+            <p>
+                <span class="badge badge-blue">Студентів: {{ course.students.count }}</span>
+                <span class="badge badge-green">Уроків: {{ course.lessons.count }}</span>
+                <span class="badge badge-yellow">Завдань: {{ course.assignments.count }}</span>
+            </p>
+            <a href="/courses/{{ course.id }}/" class="btn">Відкрити курс</a>
+        </div>
+    {% empty %}
+        <div class="empty">У вас поки немає курсів.</div>
+    {% endfor %}
+</div>
+{% endblock %}

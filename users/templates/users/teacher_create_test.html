@@ -1,0 +1,150 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Створити тест</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Створити тест</h1>
+    <p>Назва, налаштування та питання в одній формі</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/teacher-dashboard/tests/" class="btn">Результати тестів</a>
+    </div>
+
+    <form method="POST" id="quizBuilderForm">
+        {% csrf_token %}
+
+        <div class="card">
+            <h2>Дані тесту</h2>
+
+            <label>Курс</label>
+            <select name="course" required>
+                {% for course in teacher_courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Назва тесту</label>
+            <input type="text" name="title" required>
+
+            <label>Опис тесту</label>
+            <textarea name="description" rows="4"></textarea>
+
+            <label>Час на виконання, хв</label>
+            <input type="number" name="time_limit" min="1" value="10" required>
+
+            <label>Кількість спроб</label>
+            <input type="number" name="max_attempts" min="1" value="3" required>
+
+            <label class="answer-option">
+                <input type="checkbox" name="show_correct_answers" checked>
+                Показувати правильні відповіді після тесту
+            </label>
+        </div>
+
+        <h2>Питання</h2>
+
+        <div id="questionsContainer">
+            {% for number in "123" %}
+                <div class="card question-card">
+                    <input type="hidden" name="question_number" value="{{ forloop.counter }}">
+
+                    <h3>Питання {{ forloop.counter }}</h3>
+
+                    <label>Текст питання</label>
+                    <textarea name="question_text_{{ forloop.counter }}" rows="3" {% if forloop.first %}required{% endif %}></textarea>
+
+                    <input type="hidden" name="question_order_{{ forloop.counter }}" value="{{ forloop.counter }}">
+
+                    <label>Варіант 1</label>
+                    <input type="text" name="option_1_{{ forloop.counter }}">
+
+                    <label>Варіант 2</label>
+                    <input type="text" name="option_2_{{ forloop.counter }}">
+
+                    <label>Варіант 3</label>
+                    <input type="text" name="option_3_{{ forloop.counter }}">
+
+                    <label>Варіант 4</label>
+                    <input type="text" name="option_4_{{ forloop.counter }}">
+
+                    <label>Номер правильної відповіді</label>
+                    <select name="correct_option_{{ forloop.counter }}">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="btn btn-dark" id="addQuestionBtn">
+            Додати питання
+        </button>
+
+        <button type="submit" class="btn">
+            Створити тест
+        </button>
+    </form>
+</div>
+
+<template id="questionTemplate">
+    <div class="card question-card">
+        <input type="hidden" name="question_number" value="__number__">
+
+        <h3>Питання __number__</h3>
+
+        <label>Текст питання</label>
+        <textarea name="question_text___number__" rows="3"></textarea>
+
+        <input type="hidden" name="question_order___number__" value="__number__">
+
+        <label>Варіант 1</label>
+        <input type="text" name="option_1___number__">
+
+        <label>Варіант 2</label>
+        <input type="text" name="option_2___number__">
+
+        <label>Варіант 3</label>
+        <input type="text" name="option_3___number__">
+
+        <label>Варіант 4</label>
+        <input type="text" name="option_4___number__">
+
+        <label>Номер правильної відповіді</label>
+        <select name="correct_option___number__">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </div>
+</template>
+
+<script>
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const questionTemplate = document.getElementById('questionTemplate');
+    let nextQuestionNumber = 4;
+
+    addQuestionBtn.addEventListener('click', () => {
+        const html = questionTemplate.innerHTML.replaceAll('__number__', nextQuestionNumber);
+        questionsContainer.insertAdjacentHTML('beforeend', html);
+        nextQuestionNumber += 1;
+    });
+</script>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

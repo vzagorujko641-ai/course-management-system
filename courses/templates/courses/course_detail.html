@@ -1,0 +1,538 @@
+﻿{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.title }}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+
+    <p>
+        <span class="badge badge-blue">
+            Викладач: {{ course.teacher.username }}
+        </span>
+
+        {% for teacher in course.co_teachers.all %}
+            <span class="badge badge-green">
+                Співвикладач: {{ teacher.username }}
+            </span>
+        {% endfor %}
+
+        {% for tag in course.tags.all %}
+            <span class="badge badge-yellow">
+                {{ tag.name }}
+            </span>
+        {% endfor %}
+    </p>
+</header>
+
+<div class="container">
+
+    <div class="stats">
+        <div class="card metric-card">
+            <p>Уроки</p>
+            <div class="number">{{ total_lessons }}</div>
+        </div>
+
+        <div class="card metric-card">
+            <p>Завдання</p>
+            <div class="number">{{ total_assignments }}</div>
+        </div>
+
+        <div class="card metric-card">
+            <p>Тести</p>
+            <div class="number">{{ total_quizzes }}</div>
+        </div>
+
+        <div class="card metric-card">
+            <p>Студенти</p>
+            <div class="number">{{ students_count }}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        {% if user.is_authenticated %}
+            {% if is_enrolled %}
+                <span class="badge badge-green">
+                    Ви вже записані на цей курс
+                </span>
+            {% else %}
+                <h2>Запис на курс</h2>
+
+                {% if enroll_error %}
+                    <p>
+                        <span class="badge badge-red">
+                            {{ enroll_error }}
+                        </span>
+                    </p>
+                {% endif %}
+
+                <form method="POST" action="/courses/{{ course.id }}/enroll/">
+                    {% csrf_token %}
+
+                    <label>Пароль курсу або групи</label>
+
+                    <input
+                        type="password"
+                        name="access_password"
+                        placeholder="Введіть пароль"
+                    >
+
+                    <button type="submit" class="btn">
+                        Записатися на курс
+                    </button>
+                </form>
+            {% endif %}
+        {% else %}
+            <span class="badge badge-red">
+                Щоб записатися на курс, потрібно увійти
+            </span>
+
+            <br><br>
+
+            <a href="/login/" class="btn">
+                Увійти
+            </a>
+        {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <div class="card">
+            {% if is_favorite %}
+                <form method="POST" action="/courses/{{ course.id }}/favorite/">
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn btn-dark">
+                        Прибрати з обраного
+                    </button>
+                </form>
+            {% else %}
+                <form method="POST" action="/courses/{{ course.id }}/favorite/">
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn">
+                        Додати в обране
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="card">
+        <h2>Прогрес проходження</h2>
+
+        <p class="number">
+            {{ progress }}%
+        </p>
+
+        <div class="progress-wrap">
+            <div class="progress-bar" style="width:{{ progress }}%;"></div>
+        </div>
+    </div>
+
+    {% if user == course.teacher or user.is_superuser %}
+        <div class="card">
+            <h2>Панель викладача</h2>
+
+            <a href="/teacher-dashboard/" class="btn">
+                Керування курсами
+            </a>
+
+            <a href="/gradebook/" class="btn">
+                Журнал оцінок
+            </a>
+
+            {% for group in course.student_groups.all %}
+                <a href="/groups/{{ group.id }}/" class="btn btn-dark">
+                    Група: {{ group.name }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if schedule_events %}
+        <h2>Розклад занять</h2>
+
+        <div class="grid">
+            {% for event in schedule_events %}
+                <div class="card">
+                    <h3>{{ event.title }}</h3>
+
+                    <span class="badge badge-green">
+                        {{ event.starts_at }}
+                    </span>
+
+                    {% if event.location %}
+                        <p>{{ event.location }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <h2>Модулі та уроки курсу</h2>
+
+    {% for module in modules %}
+        <div class="card">
+            <h3>{{ module.order }}. {{ module.title }}</h3>
+
+            {% if module.description %}
+                <p>{{ module.description }}</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <div class="grid">
+        {% for lesson in lessons %}
+            <div class="card lesson-card">
+                <h3>Урок {{ lesson.order }}. {{ lesson.title }}</h3>
+
+                {% if lesson.banner_image %}
+                    <div class="lesson-banner">
+                        <img src="{{ lesson.banner_image.url }}" alt="{{ lesson.title }}">
+                    </div>
+                {% endif %}
+
+                {% if lesson.module %}
+                    <p>
+                        <span class="badge badge-green">
+                            {{ lesson.module.title }}
+                        </span>
+                    </p>
+                {% endif %}
+
+                {% if lesson.category %}
+                    <p>
+                        <span class="badge badge-blue">
+                            {{ lesson.category }}
+                        </span>
+                    </p>
+                {% endif %}
+
+                <p>{{ lesson.content }}</p>
+
+                {% if lesson.video %}
+                    <video class="lesson-video" controls>
+                        <source src="{{ lesson.video.url }}">
+                    </video>
+                {% endif %}
+
+                {% if lesson.pdf_material %}
+                    <a href="{{ lesson.pdf_material.url }}" class="btn">
+                        PDF-матеріал
+                    </a>
+                {% endif %}
+
+                {% if lesson.presentation %}
+                    <a href="{{ lesson.presentation.url }}" class="btn">
+                        Презентація
+                    </a>
+                {% endif %}
+
+                {% if lesson.images.all %}
+                    <div class="lesson-gallery">
+                        {% for image in lesson.images.all %}
+                            <figure>
+                                <img src="{{ image.image.url }}" alt="{{ image.caption|default:lesson.title }}">
+
+                                {% if image.caption %}
+                                    <figcaption>{{ image.caption }}</figcaption>
+                                {% endif %}
+                            </figure>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    {% if lesson.id in completed_lessons %}
+                        <span class="badge badge-green">
+                            Пройдено
+                        </span>
+                    {% else %}
+                        <form method="POST" action="/courses/lesson/{{ lesson.id }}/complete/">
+                            {% csrf_token %}
+
+                            <button type="submit" class="btn">
+                                Позначити як пройдений
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="empty">
+                Уроків поки немає.
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2>Електронна бібліотека</h2>
+
+    <div class="grid">
+        {% for item in library_items %}
+            <div class="card">
+                <h3>{{ item.title }}</h3>
+
+                <span class="badge badge-blue">
+                    {{ item.get_material_type_display }}
+                </span>
+
+                <p>{{ item.description }}</p>
+
+                {% if item.file %}
+                    <a href="{{ item.file.url }}" class="btn">
+                        Завантажити
+                    </a>
+                {% endif %}
+
+                {% if item.url %}
+                    <a href="{{ item.url }}" class="btn btn-dark">
+                        Відкрити
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="empty">
+                Матеріалів бібліотеки поки немає.
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2>Тести та квізи</h2>
+
+    <div class="grid">
+        {% for quiz in quizzes %}
+            <div class="card">
+                <h3>{{ quiz.title }}</h3>
+
+                {% if quiz.description %}
+                    <p>{{ quiz.description }}</p>
+                {% endif %}
+
+                <p>
+                    <span class="badge badge-blue">
+                        Час: {{ quiz.time_limit }} хв
+                    </span>
+                </p>
+
+                <p>
+                    <span class="badge badge-green">
+                        Питань: {{ quiz.questions.count }}
+                    </span>
+                </p>
+
+                {% if user.is_authenticated %}
+                    <a href="/courses/quiz/{{ quiz.id }}/take/" class="btn">
+                        Пройти тест
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="empty">
+                Тестів поки немає.
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2>Завдання</h2>
+
+    <div class="grid">
+        {% for assignment in course.assignments.all %}
+            <div class="card">
+                <h3>{{ assignment.title }}</h3>
+
+                <p>{{ assignment.description }}</p>
+
+                <p>
+                    <span class="badge badge-blue">
+                        Дедлайн: {{ assignment.deadline }}
+                    </span>
+
+                    {% if assignment.allow_late_submissions %}
+                        <span class="badge badge-yellow">
+                            Пізня здача дозволена
+                        </span>
+                    {% else %}
+                        <span class="badge badge-red">
+                            Пізня здача заборонена
+                        </span>
+                    {% endif %}
+                </p>
+
+                <a href="/courses/assignment/{{ assignment.id }}/submit/" class="btn">
+                    Відправити завдання
+                </a>
+            </div>
+        {% empty %}
+            <div class="empty">
+                Завдань поки немає.
+            </div>
+        {% endfor %}
+    </div>
+
+    <h2>Чат курсу</h2>
+
+    {% if can_chat %}
+
+        <div class="chat-panel">
+
+            <div class="chat-header">
+                Повідомлення курсу
+            </div>
+
+            <div class="chat-box">
+
+                {% for message in messages %}
+
+                    {% if message.author == user %}
+                        <div class="message-row my-message">
+                    {% else %}
+                        <div class="message-row other-message">
+                    {% endif %}
+
+                            <div class="message-bubble {% if message.is_pinned %}pinned-message{% endif %}">
+                                {% if message.is_pinned %}
+                                    <span class="pin-label">
+                                        Закріплено
+                                    </span>
+                                {% endif %}
+
+                                {% if message.author != user %}
+                                    <b>{{ message.author.username }}</b>
+                                {% endif %}
+
+                                {% if message.reply_to %}
+                                    <div class="reply-preview">
+                                        Відповідь на {{ message.reply_to.author.username }}:
+                                        {{ message.reply_to.text|truncatechars:70 }}
+                                    </div>
+                                {% endif %}
+
+                                {% if message.text %}
+                                    <p>{{ message.text }}</p>
+                                {% endif %}
+
+                                {% if message.file %}
+                                    <a href="{{ message.file.url }}" class="chat-file">
+                                        Завантажити файл
+                                    </a>
+                                {% endif %}
+
+                                <span>{{ message.created_at }}</span>
+
+                                <div class="message-actions">
+                                    <form method="POST" action="/courses/message/{{ message.id }}/like/" class="inline-form">
+                                        {% csrf_token %}
+
+                                        <button type="submit" class="chat-action">
+                                            Подобається {{ message.likes.count }}
+                                        </button>
+                                    </form>
+
+                                    {% if user == course.teacher or user.is_superuser %}
+                                        <form method="POST" action="/courses/message/{{ message.id }}/pin/" class="inline-form">
+                                            {% csrf_token %}
+
+                                            <button type="submit" class="chat-action">
+                                                {% if message.is_pinned %}
+                                                    Відкріпити
+                                                {% else %}
+                                                    Закріпити
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+
+                                {% if message.author != user %}
+                                    <form method="POST" enctype="multipart/form-data" class="reply-form">
+                                        {% csrf_token %}
+
+                                        <input type="hidden" name="reply_to" value="{{ message.id }}">
+
+                                        <textarea
+                                            name="text"
+                                            rows="2"
+                                            placeholder="Відповісти..."
+                                        ></textarea>
+
+                                        <input type="file" name="file">
+
+                                        <button type="submit" class="btn">
+                                            Відповісти
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                {% empty %}
+
+                    <div class="empty">
+                        Повідомлень поки немає.
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="chat-form">
+                {% csrf_token %}
+
+                <textarea
+                    name="text"
+                    rows="3"
+                    placeholder="Напишіть повідомлення..."
+                ></textarea>
+
+                <label>Файл до повідомлення</label>
+                <input type="file" name="file">
+
+                <button type="submit" class="btn">
+                    Надіслати
+                </button>
+            </form>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty">
+            Чат доступний тільки викладачу та студентам, які записані на курс.
+        </div>
+
+    {% endif %}
+
+    <br>
+
+    <a href="/courses/" class="btn btn-dark">
+        Назад до курсів
+    </a>
+
+    <a href="/" class="btn">
+        На головну
+    </a>
+
+    {% if certificate_available %}
+        <a href="{% url 'generate_certificate' course.id %}" class="btn">
+            Сертифікат PDF
+        </a>
+    {% else %}
+        <span class="btn btn-disabled">
+            Сертифікат доступний після 100%
+        </span>
+    {% endif %}
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

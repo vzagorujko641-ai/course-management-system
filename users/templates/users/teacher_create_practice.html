@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Створити практичну</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Створити практичну</h1>
+    <p>Практична робота з дедлайном та перевіркою</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/teacher-dashboard/create-assignment/" class="btn">Створити завдання</a>
+    </div>
+
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="assignment">
+            {{ assignment_form.as_p }}
+            <button type="submit" class="btn">Додати практичну</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

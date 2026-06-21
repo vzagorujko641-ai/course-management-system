@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="auth-page">
+
+<main class="auth-layout">
+    <section class="auth-info">
+        <a href="/" class="brand-mark">EduCourse</a>
+        <h1>Вхід у систему</h1>
+        <p>Увійдіть, щоб продовжити навчання, переглянути курси, дедлайни та оцінки.</p>
+    </section>
+
+    <section class="auth-box">
+        <form method="POST">
+            {% csrf_token %}
+
+            <label>Логін</label>
+            <input type="text" name="username" autocomplete="username">
+
+            <label>Пароль</label>
+            <input type="password" name="password" autocomplete="current-password">
+
+            <button type="submit" class="btn">Увійти</button>
+        </form>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="/" class="btn btn-dark">На головну</a>
+            <a href="/register/" class="btn btn-dark">Реєстрація</a>
+        </div>
+    </section>
+</main>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

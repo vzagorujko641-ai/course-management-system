@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Повідомлення</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Повідомлення</h1>
+    <p>Нові уроки, завдання, перевірені роботи та службові оновлення</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <a href="/" class="btn btn-dark">На головну</a>
+        <a href="/dashboard/" class="btn">Особистий кабінет</a>
+        {% if user.role == 'teacher' or user.is_superuser %}
+            <a href="/teacher-dashboard/" class="btn">Кабінет викладача</a>
+        {% endif %}
+    </div>
+
+    {% for notification in notifications %}
+        <div class="card {% if notification.is_read %}notice-read{% else %}notice-unread{% endif %}">
+            <h3>{{ notification.title }}</h3>
+            <p>{{ notification.text }}</p>
+            <p>
+                <span class="badge badge-blue">{{ notification.get_notification_type_display }}</span>
+                {% if notification.is_read %}
+                    <span class="badge badge-green">Прочитано</span>
+                {% else %}
+                    <span class="badge badge-yellow">Нове</span>
+                {% endif %}
+            </p>
+            <p>{{ notification.created_at }}</p>
+            <form method="POST" action="/notifications/{{ notification.id }}/read/">
+                {% csrf_token %}
+                <button type="submit" class="btn">
+                    {% if notification.url %}Відкрити{% else %}Позначити прочитаним{% endif %}
+                </button>
+            </form>
+        </div>
+    {% empty %}
+        <div class="empty">Повідомлень поки немає.</div>
+    {% endfor %}
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

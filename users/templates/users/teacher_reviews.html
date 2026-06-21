@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Перевірка робіт{% endblock %}
+{% block header %}Перевірка робіт{% endblock %}
+{% block subtitle %}Оцінки, статуси та коментарі до відповідей студентів{% endblock %}
+
+{% block content %}
+<div class="card">
+    <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+    <a href="/gradebook/" class="btn">Журнал оцінок</a>
+</div>
+
+{% for submission in teacher_submissions %}
+    <details class="card" {% if submission.status == 'pending' %}open{% endif %}>
+        <summary>
+            {{ submission.assignment.title }} -
+            {{ submission.student.username }}
+            {% if submission.status == 'checked' %}
+                <span class="badge badge-green">Перевірено</span>
+            {% else %}
+                <span class="badge badge-yellow">Очікує</span>
+            {% endif %}
+        </summary>
+
+        <p><b>Курс:</b> {{ submission.assignment.course.title }}</p>
+        <p><b>Відповідь:</b> {{ submission.answer }}</p>
+
+        {% if submission.is_late %}
+            <p><span class="badge badge-yellow">Здано після дедлайну</span></p>
+        {% endif %}
+
+        {% if submission.file %}
+            <a href="{{ submission.file.url }}" class="btn">Файл студента</a>
+        {% endif %}
+
+        <form method="POST" class="review-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="review">
+            <input type="hidden" name="submission_id" value="{{ submission.id }}">
+
+            <label>Оцінка</label>
+            <input type="number" name="grade" min="0" max="100" value="{{ submission.grade|default_if_none:'' }}">
+
+            <label>Статус</label>
+            <select name="status">
+                <option value="pending" {% if submission.status == 'pending' %}selected{% endif %}>Очікує</option>
+                <option value="checked" {% if submission.status == 'checked' %}selected{% endif %}>Перевірено</option>
+            </select>
+
+            <label>Коментар викладача</label>
+            <textarea name="teacher_comment" rows="3">{{ submission.teacher_comment }}</textarea>
+
+            <button type="submit" class="btn">Зберегти перевірку</button>
+        </form>
+    </details>
+{% empty %}
+    <div class="empty">Відповідей поки немає.</div>
+{% endfor %}
+{% endblock %}

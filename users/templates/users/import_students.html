@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Імпорт студентів{% endblock %}
+{% block header %}Імпорт студентів{% endblock %}
+{% block subtitle %}CSV-файл з колонками username,email{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% if imported_count %}
+        <span class="badge badge-green">Імпортовано: {{ imported_count }}</span>
+    {% endif %}
+    {% if error %}
+        <span class="badge badge-red">{{ error }}</span>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label>Курс</label>
+        <select name="course" required>
+            {% for course in teacher_courses %}
+                <option value="{{ course.id }}">{{ course.title }}</option>
+            {% endfor %}
+        </select>
+        <label>CSV-файл</label>
+        <input type="file" name="students_file" accept=".csv" required>
+        <button type="submit" class="btn">Імпортувати</button>
+    </form>
+</div>
+{% endblock %}

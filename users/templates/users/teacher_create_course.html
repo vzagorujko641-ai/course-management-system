@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Створити курс</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Створити курс</h1>
+    <p>Основна інформація про навчальний курс</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/teacher-dashboard/create-lesson/" class="btn">Створити урок</a>
+        <a href="/teacher-dashboard/create-assignment/" class="btn">Створити завдання</a>
+    </div>
+
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="course">
+            {{ course_form.as_p }}
+            <button type="submit" class="btn">Зберегти курс</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

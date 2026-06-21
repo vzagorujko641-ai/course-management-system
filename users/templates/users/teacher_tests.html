@@ -1,0 +1,41 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Результати тестів</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Результати тестів</h1>
+    <p>Спроби студентів і відсоток виконання</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/teacher-dashboard/create-test/" class="btn">Створити тест</a>
+        <a href="/gradebook/" class="btn">Журнал оцінок</a>
+    </div>
+
+    <div class="grid">
+        {% for attempt in quiz_attempts %}
+            <div class="card">
+                <h3>{{ attempt.quiz.title }}</h3>
+                <p><b>Курс:</b> {{ attempt.quiz.course.title }}</p>
+                <p><b>Студент:</b> {{ attempt.student.username }}</p>
+                <p class="number">{{ attempt.percent }}%</p>
+            </div>
+        {% empty %}
+            <div class="empty">Спроб тестів поки немає.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

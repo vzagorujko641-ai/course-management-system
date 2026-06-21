@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Електронна бібліотека{% endblock %}
+{% block header %}Електронна бібліотека{% endblock %}
+{% block subtitle %}Книги, презентації, посилання та додаткові матеріали{% endblock %}
+
+{% block content %}
+<div class="card">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="library">
+        {{ library_form.as_p }}
+        <button type="submit" class="btn">Додати матеріал</button>
+    </form>
+</div>
+
+<div class="grid">
+    {% for item in library_items %}
+        <div class="card">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.course.title }}</p>
+            <span class="badge badge-blue">{{ item.get_material_type_display }}</span>
+            <p>{{ item.description }}</p>
+            {% if item.file %}<a href="{{ item.file.url }}" class="btn">Файл</a>{% endif %}
+            {% if item.url %}<a href="{{ item.url }}" class="btn btn-dark">Посилання</a>{% endif %}
+        </div>
+    {% empty %}
+        <div class="empty">Матеріалів поки немає.</div>
+    {% endfor %}
+</div>
+{% endblock %}

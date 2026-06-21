@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="auth-page">
+
+<main class="auth-layout">
+    <section class="auth-info">
+        <a href="/" class="brand-mark">EduCourse</a>
+        <h1>Реєстрація</h1>
+        <p>Створіть обліковий запис студента, щоб записуватися на курси та відстежувати прогрес.</p>
+    </section>
+
+    <section class="auth-box">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Зареєструватися</button>
+        </form>
+
+        <div class="actions">
+            <a href="/" class="btn btn-dark">На головну</a>
+            <a href="/login/" class="btn btn-dark">Увійти</a>
+        </div>
+    </section>
+</main>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мій кабінет{% endblock %}
+{% block header %}Мій кабінет{% endblock %}
+{% block subtitle %}Профіль, курси, повідомлення, оцінки та прогрес навчання{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-layout">
+    <aside class="profile-panel card">
+        <div class="profile-row">
+            {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="avatar">
+            {% else %}
+                <div class="avatar avatar-placeholder">{{ user.username|first|upper }}</div>
+            {% endif %}
+            <div>
+                <h2>{{ user.username }}</h2>
+                <span class="badge badge-blue">Роль: {{ user.role }}</span>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="avatar-form">
+            {% csrf_token %}
+            <label>Аватар користувача</label>
+            {{ profile_form.avatar }}
+            <button type="submit" class="btn">Оновити аватар</button>
+        </form>
+
+        <div class="profile-links">
+            <a href="/" class="btn btn-dark">Головна</a>
+            <a href="/courses/" class="btn btn-dark">Курси</a>
+            <a href="/my-progress/" class="btn btn-dark">Мій прогрес</a>
+            <a href="/calendar/" class="btn btn-dark">Календар</a>
+            <a href="/gradebook/" class="btn btn-dark">Оцінки</a>
+            <a href="/notifications/" class="btn btn-dark">Повідомлення{% if unread_notifications %} ({{ unread_notifications }}){% endif %}</a>
+            <a href="/logout/" class="btn btn-dark">Вийти</a>
+        </div>
+    </aside>
+
+    <section class="dashboard-main">
+        <div class="stats">
+            <div class="card metric-card">
+                <p>Дедлайни цього тижня</p>
+                <div class="number">{{ upcoming_deadlines }}</div>
+            </div>
+            <div class="card metric-card">
+                <p>Прострочені завдання</p>
+                <div class="number">{{ late_deadlines }}</div>
+            </div>
+            <div class="card metric-card">
+                <p>Оцінені роботи</p>
+                <div class="number">{{ new_grades }}</div>
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <span class="eyebrow">Повідомлення</span>
+            <h2>Останні оновлення</h2>
+        </div>
+
+        <div class="grid">
+            {% for notification in notifications %}
+                <div class="card {% if notification.is_read %}notice-read{% else %}notice-unread{% endif %}">
+                    <h3>{{ notification.title }}</h3>
+                    <p>{{ notification.text }}</p>
+                    <form method="POST" action="/notifications/{{ notification.id }}/read/">
+                        {% csrf_token %}
+                        <button type="submit" class="btn">Відкрити</button>
+                    </form>
+                </div>
+            {% empty %}
+                <div class="empty">Нових повідомлень поки немає.</div>
+            {% endfor %}
+        </div>
+
+        <div class="section-heading">
+            <span class="eyebrow">Курси</span>
+            <h2>Мої курси</h2>
+        </div>
+
+        <div class="grid">
+            {% for course in my_courses %}
+                <div class="card">
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                    <a href="/courses/{{ course.id }}/" class="btn">Відкрити курс</a>
+                </div>
+            {% empty %}
+                <div class="empty">Ви ще не записані на жоден курс.</div>
+            {% endfor %}
+        </div>
+
+        <div class="section-heading">
+            <span class="eyebrow">Обране</span>
+            <h2>Обрані курси</h2>
+        </div>
+
+        <div class="grid">
+            {% for course in favorite_courses %}
+                <div class="card">
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.description }}</p>
+                    <a href="/courses/{{ course.id }}/" class="btn">Відкрити курс</a>
+                    <form method="POST" action="/courses/{{ course.id }}/favorite/">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="/dashboard/">
+                        <button type="submit" class="btn btn-dark">Прибрати з обраного</button>
+                    </form>
+                </div>
+            {% empty %}
+                <div class="empty">Обраних курсів поки немає.</div>
+            {% endfor %}
+        </div>
+
+        <div class="section-heading">
+            <span class="eyebrow">Аналітика</span>
+            <h2>Графік успішності</h2>
+        </div>
+
+        <div class="card chart-card">
+            <canvas id="gradesChart"></canvas>
+        </div>
+
+        <div class="section-heading">
+            <span class="eyebrow">Відповіді</span>
+            <h2>Мої роботи та оцінки</h2>
+        </div>
+
+        {% for submission in my_submissions %}
+            <div class="card">
+                <h3>{{ submission.assignment.title }}</h3>
+                <p><b>Відповідь:</b> {{ submission.answer }}</p>
+
+                {% if submission.file %}
+                    <a href="{{ submission.file.url }}" class="btn">Завантажити файл</a>
+                {% endif %}
+
+                {% if submission.grade %}
+                    <span class="badge badge-green">Оцінка: {{ submission.grade }}</span>
+                {% else %}
+                    <span class="badge badge-yellow">Оцінка ще не виставлена</span>
+                {% endif %}
+
+                {% if submission.status == 'checked' %}
+                    <span class="badge badge-green">Статус: перевірено</span>
+                {% else %}
+                    <span class="badge badge-yellow">Статус: очікує</span>
+                {% endif %}
+
+                {% if submission.teacher_comment %}
+                    <p><b>Коментар викладача:</b> {{ submission.teacher_comment }}</p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="empty">Ви ще не відправляли відповіді.</div>
+        {% endfor %}
+    </section>
+</section>
+
+{{ grade_labels|json_script:"grade-labels" }}
+{{ grade_values|json_script:"grade-values" }}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const gradeLabels = JSON.parse(document.getElementById('grade-labels').textContent);
+    const gradeValues = JSON.parse(document.getElementById('grade-values').textContent);
+    const gradesCtx = document.getElementById('gradesChart');
+
+    if (gradesCtx) {
+        new Chart(gradesCtx, {
+            type: 'bar',
+            data: {
+                labels: gradeLabels,
+                datasets: [{
+                    label: 'Оцінка',
+                    data: gradeValues,
+                    backgroundColor: '#2563eb',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

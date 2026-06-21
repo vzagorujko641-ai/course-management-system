@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступ обмежено</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=navy-10">
+</head>
+<body>
+<header class="header">
+    <a href="/" class="brand-mark">EduCourse</a>
+    <h1>Доступ обмежено</h1>
+    <p>{{ reason }}</p>
+</header>
+
+<main class="container">
+    <div class="card">
+        <h2>{{ course.title }}</h2>
+        <p>{{ course.description }}</p>
+        <p>
+            <span class="badge badge-yellow">Курс може бути прихований, архівований або доступний тільки викладачу.</span>
+        </p>
+        <a href="/courses/" class="btn">До каталогу</a>
+        <a href="/" class="btn btn-dark">На головну</a>
+    </div>
+</main>
+
+<script src="{% static 'js/theme.js' %}?v=navy-10"></script>
+</body>
+</html>

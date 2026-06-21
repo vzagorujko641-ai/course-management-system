@@ -1,0 +1,165 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курси</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header app-header">
+    <div class="brand-block">
+        <a href="/" class="brand-mark">EduCourse</a>
+        <h1>Каталог курсів</h1>
+        <p>Знайдіть курс, відфільтруйте за викладачем або категорією і швидко перейдіть до навчання.</p>
+    </div>
+    <nav class="top-nav">
+        <a href="/" class="nav-link">Головна</a>
+        <a href="/courses/" class="nav-link nav-link-primary">Каталог</a>
+        {% if user.is_authenticated %}
+            <a href="/dashboard/" class="nav-link">Кабінет</a>
+            {% if user.role == 'teacher' or user.is_superuser %}
+                <a href="/teacher-dashboard/" class="nav-link">Викладач</a>
+            {% endif %}
+        {% else %}
+            <a href="/login/" class="nav-link">Увійти</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main class="container">
+    <section class="catalog-shell">
+        <aside class="filter-panel card">
+            <span class="eyebrow">Пошук</span>
+            <h2>Фільтри</h2>
+
+            <form method="GET" class="filter-form">
+                <label>
+                    Назва або матеріал
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Курс, урок або завдання..."
+                        value="{{ query|default:'' }}"
+                    >
+                </label>
+
+                <label>
+                    Категорія
+                    <select name="category">
+                        <option value="">Усі категорії</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Викладач
+                    <select name="teacher">
+                        <option value="">Усі викладачі</option>
+                        {% for teacher in teachers %}
+                            <option value="{{ teacher.teacher_id }}" {% if teacher_id == teacher.teacher_id|stringformat:"s" %}selected{% endif %}>
+                                {{ teacher.teacher__username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>
+                    Тег
+                    <select name="tag">
+                        <option value="">Усі теги</option>
+                        {% for tag in tags %}
+                            <option value="{{ tag.id }}" {% if tag_id == tag.id|stringformat:"s" %}selected{% endif %}>
+                                {{ tag.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                {% if user.is_authenticated %}
+                    <label class="check-row">
+                        <input type="checkbox" name="my" value="1" {% if only_my %}checked{% endif %}>
+                        Тільки мої курси
+                    </label>
+
+                    <label class="check-row">
+                        <input type="checkbox" name="favorite" value="1" {% if only_favorite %}checked{% endif %}>
+                        Тільки обрані
+                    </label>
+                {% endif %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn">Шукати</button>
+                    <a href="/courses/" class="btn btn-dark">Скинути</a>
+                </div>
+            </form>
+        </aside>
+
+        <section class="catalog-content">
+            {% regroup courses by category as category_list %}
+
+            {% for category in category_list %}
+                <div class="section-heading">
+                    <span class="eyebrow">
+                        {% if category.grouper %}{{ category.grouper.name }}{% else %}Без категорії{% endif %}
+                    </span>
+                    <h2>{{ category.list|length }} курсів</h2>
+                </div>
+
+                <div class="course-grid">
+                    {% for course in category.list %}
+                        <article class="course-card card">
+                            <div class="course-card-top">
+                                <span class="badge badge-blue">{{ course.teacher.username }}</span>
+                                {% if course.id in favorite_course_ids %}
+                                    <span class="badge badge-yellow">Обране</span>
+                                {% endif %}
+                            </div>
+
+                            <h3>{{ course.title }}</h3>
+                            <p>{{ course.description }}</p>
+
+                            <div class="tag-row">
+                                {% for tag in course.tags.all %}
+                                    <span class="badge badge-green">{{ tag.name }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="course-actions">
+                                <a href="/courses/{{ course.id }}/" class="btn">Відкрити</a>
+
+                                {% if user.is_authenticated %}
+                                    <form method="POST" action="/courses/{{ course.id }}/favorite/" class="inline-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="/courses/">
+                                        <button type="submit" class="btn btn-dark">
+                                            {% if course.id in favorite_course_ids %}
+                                                В обраному
+                                            {% else %}
+                                                В обране
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% empty %}
+                <div class="empty">Курси не знайдено.</div>
+            {% endfor %}
+        </section>
+    </section>
+</main>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

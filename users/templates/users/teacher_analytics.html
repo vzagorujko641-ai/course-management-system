@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Аналітика курсів{% endblock %}
+{% block header %}Аналітика курсів{% endblock %}
+{% block subtitle %}Прогрес, активність і середні результати студентів{% endblock %}
+
+{% block content %}
+<div class="card">
+    <a href="/teacher-dashboard/export-grades/" class="btn">Експорт оцінок CSV</a>
+    <a href="/teacher-dashboard/report-pdf/" class="btn btn-dark">PDF-звіт</a>
+    <a href="/teacher-dashboard/import-students/" class="btn">Імпорт студентів</a>
+</div>
+
+<div class="table-wrap card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Курс</th>
+                <th>Студенти</th>
+                <th>Уроки</th>
+                <th>Завдання</th>
+                <th>Відповіді</th>
+                <th>Перевірено</th>
+                <th>Середній бал</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in analytics_rows %}
+                <tr>
+                    <td>{{ row.course.title }}</td>
+                    <td>{{ row.students_count }}</td>
+                    <td>{{ row.lessons_count }}</td>
+                    <td>{{ row.assignments_count }}</td>
+                    <td>{{ row.submissions_count }}</td>
+                    <td>{{ row.checked_count }}</td>
+                    <td>{{ row.average_grade }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7">Даних поки немає.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

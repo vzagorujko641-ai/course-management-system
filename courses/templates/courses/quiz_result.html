@@ -1,0 +1,76 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Результат тесту</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Результат тесту</h1>
+    <p>{{ quiz.title }}</p>
+</header>
+
+<div class="container">
+
+    {% if attempt_limit_reached %}
+        <div class="card">
+            <h2>Ліміт спроб вичерпано</h2>
+            <p>Для цього тесту дозволено {{ quiz.max_attempts }} спроб.</p>
+            {% if attempt %}
+                <p>Ваш останній результат:</p>
+                <p class="number">{{ attempt.percent }}%</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="card">
+            <h2>{{ quiz.title }}</h2>
+
+            <p class="number">{{ attempt.percent }}%</p>
+
+            <p>
+                Правильних відповідей:
+                <b>{{ attempt.score }}</b>
+                з
+                <b>{{ attempt.total_questions }}</b>
+            </p>
+
+            {% if attempt.percent >= 60 %}
+                <span class="badge badge-green">Тест пройдено</span>
+            {% else %}
+                <span class="badge badge-red">Тест не пройдено</span>
+            {% endif %}
+        </div>
+
+        {% if quiz.show_correct_answers %}
+            <h2>Перевірка відповідей</h2>
+
+            {% for row in result_rows %}
+                <div class="card">
+                    <h3>{{ row.question.order }}. {{ row.question.text }}</h3>
+
+                    {% if row.is_correct %}
+                        <span class="badge badge-green">Правильно</span>
+                    {% else %}
+                        <span class="badge badge-red">Неправильно</span>
+                    {% endif %}
+
+                    <p><b>Правильний варіант:</b> {{ row.question.correct_option }}</p>
+                    <p><b>Ваш варіант:</b> {{ row.selected_option|default:'не вибрано' }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+
+    <a href="/courses/{{ quiz.course.id }}/" class="btn">Назад до курсу</a>
+    <a href="/gradebook/" class="btn btn-dark">Журнал оцінок</a>
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

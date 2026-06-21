@@ -1,0 +1,129 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ quiz.title }}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>{{ quiz.title }}</h1>
+    <p>{{ quiz.course.title }}</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Таймер</h2>
+        <p class="number" id="quizTimer">{{ quiz.time_limit }}:00</p>
+        <p>Після завершення часу тест буде відправлено автоматично.</p>
+        <p>
+            <span class="badge badge-blue">Використано спроб: {{ attempts_used }}</span>
+            <span class="badge badge-green">Залишилось: {{ attempts_left }}</span>
+        </p>
+    </div>
+
+    <form method="POST" id="quizForm">
+        {% csrf_token %}
+
+        {% for question in questions %}
+            <div class="card">
+                <h3>{{ question.order }}. {{ question.text }}</h3>
+
+                {% if question.option_1 %}
+                    <label class="answer-option">
+                        <input
+                            type="radio"
+                            name="question_{{ question.id }}"
+                            value="1"
+                        >
+                        {{ question.option_1 }}
+                    </label>
+                {% endif %}
+
+                {% if question.option_2 %}
+                    <label class="answer-option">
+                        <input
+                            type="radio"
+                            name="question_{{ question.id }}"
+                            value="2"
+                        >
+                        {{ question.option_2 }}
+                    </label>
+                {% endif %}
+
+                {% if question.option_3 %}
+                    <label class="answer-option">
+                        <input
+                            type="radio"
+                            name="question_{{ question.id }}"
+                            value="3"
+                        >
+                        {{ question.option_3 }}
+                    </label>
+                {% endif %}
+
+                {% if question.option_4 %}
+                    <label class="answer-option">
+                        <input
+                            type="radio"
+                            name="question_{{ question.id }}"
+                            value="4"
+                        >
+                        {{ question.option_4 }}
+                    </label>
+                {% endif %}
+
+                {% if not question.option_1 and not question.option_2 and not question.option_3 and not question.option_4 %}
+                    <div class="empty">
+                        Варіантів відповіді поки немає.
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="empty">
+                Питань у тесті поки немає.
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn">
+            Завершити тест
+        </button>
+
+        <a href="/courses/{{ quiz.course.id }}/" class="btn btn-dark">
+            Назад до курсу
+        </a>
+    </form>
+
+</div>
+
+<script>
+    let secondsLeft = {{ quiz.time_limit }} * 60;
+    const timer = document.getElementById('quizTimer');
+    const form = document.getElementById('quizForm');
+
+    function updateTimer(){
+        const minutes = Math.floor(secondsLeft / 60);
+        const seconds = secondsLeft % 60;
+        timer.textContent = `${minutes}:${String(seconds).padStart(2, '0')}`;
+
+        if(secondsLeft <= 0){
+            form.submit();
+            return;
+        }
+
+        secondsLeft -= 1;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+</script>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

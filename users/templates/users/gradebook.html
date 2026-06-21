@@ -1,0 +1,118 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Журнал оцінок</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Журнал оцінок</h1>
+    <p>Оцінки за завдання, результати тестів і середній бал</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <p>Середній результат</p>
+        <div class="number">{{ average_grade }}%</div>
+        <a href="/" class="btn btn-dark">На головну</a>
+        {% if user.role == 'teacher' or user.is_superuser %}
+            <a href="/teacher-dashboard/" class="btn">Кабінет викладача</a>
+        {% else %}
+            <a href="/dashboard/" class="btn">Особистий кабінет</a>
+        {% endif %}
+    </div>
+
+    <h2>Завдання</h2>
+
+    <div class="card table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% if user.role == 'teacher' or user.is_superuser %}
+                        <th>Студент</th>
+                    {% endif %}
+                    <th>Курс</th>
+                    <th>Завдання</th>
+                    <th>Статус</th>
+                    <th>Оцінка</th>
+                    <th>Коментар</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        {% if user.role == 'teacher' or user.is_superuser %}
+                            <td>{{ submission.student.username }}</td>
+                        {% endif %}
+                        <td>{{ submission.assignment.course.title }}</td>
+                        <td>{{ submission.assignment.title }}</td>
+                        <td>
+                            {% if submission.status == 'checked' %}
+                                <span class="badge badge-green">Перевірено</span>
+                            {% else %}
+                                <span class="badge badge-yellow">Очікує</span>
+                            {% endif %}
+                            {% if submission.is_late %}
+                                <span class="badge badge-red">Пізно</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ submission.grade|default:'-' }}</td>
+                        <td>{{ submission.teacher_comment|default:'-' }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">Оцінок за завдання поки немає.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Тести</h2>
+
+    <div class="card table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% if user.role == 'teacher' or user.is_superuser %}
+                        <th>Студент</th>
+                    {% endif %}
+                    <th>Курс</th>
+                    <th>Тест</th>
+                    <th>Правильних</th>
+                    <th>Результат</th>
+                    <th>Дата</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in attempts %}
+                    <tr>
+                        {% if user.role == 'teacher' or user.is_superuser %}
+                            <td>{{ attempt.student.username }}</td>
+                        {% endif %}
+                        <td>{{ attempt.quiz.course.title }}</td>
+                        <td>{{ attempt.quiz.title }}</td>
+                        <td>{{ attempt.score }} з {{ attempt.total_questions }}</td>
+                        <td>{{ attempt.percent }}%</td>
+                        <td>{{ attempt.finished_at }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6">Результатів тестів поки немає.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

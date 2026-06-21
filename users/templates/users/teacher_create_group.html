@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Створити групу</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Створити групу</h1>
+    <p>Група студентів для окремого курсу</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/teacher-dashboard/groups/" class="btn">Список груп</a>
+    </div>
+
+    <div class="card">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="group">
+            {{ group_form.as_p }}
+            <button type="submit" class="btn">Створити групу</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

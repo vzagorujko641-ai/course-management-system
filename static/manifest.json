@@ -1,0 +1,10 @@
+{
+  "name": "EduCourse",
+  "short_name": "EduCourse",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#2563eb",
+  "description": "Навчальний портал для курсів, завдань і тестів",
+  "icons": []
+}

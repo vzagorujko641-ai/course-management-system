@@ -1,0 +1,34 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сертифікат</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=navy-10">
+</head>
+<body>
+<header class="header">
+    <a href="/" class="brand-mark">EduCourse</a>
+    <h1>Сертифікат курсу</h1>
+    <p>{{ course.title }}</p>
+</header>
+
+<main class="container">
+    <div class="card certificate-card">
+        <span class="badge badge-yellow">Сертифікат ще недоступний</span>
+        <h2>{{ message }}</h2>
+        <p class="number">{{ progress }}%</p>
+        <div class="progress-wrap">
+            <div class="progress-bar" style="width:{{ progress }}%;"></div>
+        </div>
+        <br>
+        <a href="/courses/{{ course.id }}/" class="btn">Повернутися до курсу</a>
+        <a href="/dashboard/" class="btn btn-dark">Мій кабінет</a>
+    </div>
+</main>
+
+<script src="{% static 'js/theme.js' %}?v=navy-10"></script>
+</body>
+</html>

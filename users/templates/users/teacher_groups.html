@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Групи</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Групи</h1>
+    <p>Навчальні групи студентів</p>
+</header>
+
+<div class="container">
+    <div class="card">
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/teacher-dashboard/create-course/" class="btn">Створити групу</a>
+    </div>
+
+    <div class="grid">
+        {% for group in teacher_groups %}
+            <div class="card">
+                <h3>{{ group.name }}</h3>
+                <p>{{ group.course.title }}</p>
+                <p><span class="badge badge-blue">Студентів: {{ group.students.count }}</span></p>
+                <a href="/groups/{{ group.id }}/" class="btn">Відкрити групу</a>
+            </div>
+        {% empty %}
+            <div class="empty">Груп поки немає.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

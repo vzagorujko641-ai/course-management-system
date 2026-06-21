@@ -1,0 +1,58 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ group.name }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>{{ group.name }}</h1>
+    <p>{{ group.course.title }}</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <p><b>Пароль групи:</b> {{ group.enrollment_password|default:'не задано' }}</p>
+        <a href="/teacher-dashboard/" class="btn btn-dark">Кабінет викладача</a>
+        <a href="/gradebook/" class="btn">Журнал оцінок</a>
+        <a href="/courses/{{ group.course.id }}/" class="btn">Курс</a>
+    </div>
+
+    <div class="card table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Студент</th>
+                    <th>Прогрес</th>
+                    <th>Здано робіт</th>
+                    <th>Пройдено уроків</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in student_rows %}
+                    <tr>
+                        <td>{{ row.student.username }}</td>
+                        <td>{{ row.progress }}%</td>
+                        <td>{{ row.submissions }}</td>
+                        <td>{{ row.lessons }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">У групі поки немає студентів.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

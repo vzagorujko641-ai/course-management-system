@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Мій прогрес{% endblock %}
+{% block header %}Мій прогрес{% endblock %}
+{% block subtitle %}Усі курси, відсоток проходження, здані роботи та доступність сертифікатів{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <span class="eyebrow">Навчання</span>
+    <h2>Прогрес за курсами</h2>
+</div>
+
+<div class="grid">
+    {% for row in course_rows %}
+        <div class="card course-progress-card">
+            <h3>{{ row.course.title }}</h3>
+            <p>{{ row.course.description }}</p>
+
+            <p class="number">{{ row.progress }}%</p>
+            <div class="progress-wrap">
+                <div class="progress-bar" style="width:{{ row.progress }}%;"></div>
+            </div>
+
+            <p>
+                <span class="badge badge-blue">Уроки: {{ row.completed_lessons }}/{{ row.total_lessons }}</span>
+                <span class="badge badge-green">Роботи: {{ row.submissions_count }}</span>
+                <span class="badge badge-yellow">Кращий тест: {{ row.best_quiz }}%</span>
+            </p>
+
+            {% if row.certificate_available %}
+                <span class="badge badge-green">Сертифікат доступний</span>
+            {% else %}
+                <span class="badge badge-yellow">Сертифікат після 100%</span>
+            {% endif %}
+
+            <br><br>
+            <a href="/courses/{{ row.course.id }}/" class="btn">Відкрити курс</a>
+            <a href="/courses/{{ row.course.id }}/generate-certificate/" class="btn btn-dark">Сертифікат</a>
+        </div>
+    {% empty %}
+        <div class="empty">Ви ще не записані на курси.</div>
+    {% endfor %}
+</div>
+{% endblock %}

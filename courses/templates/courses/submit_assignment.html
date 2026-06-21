@@ -1,0 +1,55 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Відправка завдання</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <h1>Відправка завдання</h1>
+    <p>{{ assignment.course.title }}</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>{{ assignment.title }}</h2>
+        <p>{{ assignment.description }}</p>
+
+        {% if assignment.deadline %}
+            <p>
+                <span class="badge badge-blue">Дедлайн: {{ assignment.deadline }}</span>
+                {% if not assignment.allow_late_submissions %}
+                    <span class="badge badge-red">Пізня здача заборонена</span>
+                {% else %}
+                    <span class="badge badge-yellow">Пізня здача буде позначена</span>
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <label>Ваша відповідь</label>
+            <textarea name="answer" rows="10" placeholder="Введіть вашу відповідь..."></textarea>
+
+            <label>Завантажити файл</label>
+            <input type="file" name="file">
+
+            <button type="submit" class="btn">Відправити завдання</button>
+            <a href="/courses/{{ assignment.course.id }}/" class="btn btn-dark">Назад до курсу</a>
+        </form>
+    </div>
+
+</div>
+
+<script src="{% static 'js/theme.js' %}"></script>
+
+</body>
+</html>

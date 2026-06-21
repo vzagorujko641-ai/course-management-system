@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Кабінет викладача{% endblock %}
+{% block header %}Кабінет викладача{% endblock %}
+{% block subtitle %}Курси, групи, матеріали, перевірка робіт і аналітика{% endblock %}
+
+{% block content %}
+<div class="stats">
+    <div class="card metric-card">
+        <p>Мої курси</p>
+        <div class="number">{{ teacher_courses|length }}</div>
+    </div>
+    <div class="card metric-card">
+        <p>Завдання</p>
+        <div class="number">{{ teacher_assignments|length }}</div>
+    </div>
+    <div class="card metric-card">
+        <p>Потребують перевірки</p>
+        <div class="number">{{ pending_submissions_count }}</div>
+    </div>
+    <div class="card metric-card">
+        <p>Групи</p>
+        <div class="number">{{ teacher_groups|length }}</div>
+    </div>
+</div>
+
+{% if pending_submissions %}
+    <div class="card">
+        <span class="eyebrow">Терміново</span>
+        <h2>Роботи, які очікують перевірки</h2>
+        <div class="table-wrap">
+            <table class="data-table">
+                <tr>
+                    <th>Студент</th>
+                    <th>Завдання</th>
+                    <th>Курс</th>
+                    <th>Дія</th>
+                </tr>
+                {% for submission in pending_submissions|slice:":8" %}
+                    <tr>
+                        <td>{{ submission.student.username }}</td>
+                        <td>{{ submission.assignment.title }}</td>
+                        <td>{{ submission.assignment.course.title }}</td>
+                        <td><a href="/teacher-dashboard/reviews/" class="btn">Перевірити</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endif %}
+
+<div class="section-heading">
+    <span class="eyebrow">Створення</span>
+    <h2>Додати матеріали</h2>
+</div>
+
+<div class="quick-grid">
+    <a href="/teacher-dashboard/create-course/" class="quick-link feature-link"><b>Курс</b><span>Назва, опис, статус, пароль доступу</span></a>
+    <a href="/teacher-dashboard/create-module/" class="quick-link feature-link"><b>Модуль</b><span>Структура курсу для уроків</span></a>
+    <a href="/teacher-dashboard/create-lesson/" class="quick-link feature-link"><b>Урок</b><span>Текст, відео, PDF і презентації</span></a>
+    <a href="/teacher-dashboard/create-assignment/" class="quick-link feature-link"><b>Завдання</b><span>Опис, дедлайн і правила здачі</span></a>
+    <a href="/teacher-dashboard/create-test/" class="quick-link feature-link"><b>Тест</b><span>Питання, варіанти, таймер і автоперевірка</span></a>
+    <a href="/teacher-dashboard/create-group/" class="quick-link feature-link"><b>Група</b><span>Студенти і окремий пароль групи</span></a>
+    <a href="/teacher-dashboard/library/" class="quick-link feature-link"><b>Бібліотека</b><span>Файли, книги, посилання та матеріали</span></a>
+    <a href="/teacher-dashboard/schedule/" class="quick-link feature-link"><b>Розклад</b><span>Заняття, дата, час і місце</span></a>
+</div>
+
+<div class="section-heading">
+    <span class="eyebrow">Керування</span>
+    <h2>Огляд і аналітика</h2>
+</div>
+
+<div class="quick-grid">
+    <a href="/teacher-dashboard/courses/" class="quick-link feature-link"><b>Курси</b><span>Список курсів і статуси</span></a>
+    <a href="/teacher-dashboard/groups/" class="quick-link feature-link"><b>Групи</b><span>Студенти, прогрес і роботи</span></a>
+    <a href="/teacher-dashboard/reviews/" class="quick-link feature-link"><b>Перевірка робіт</b><span>Оцінки, статуси, коментарі</span></a>
+    <a href="/teacher-dashboard/tests/" class="quick-link feature-link"><b>Результати тестів</b><span>Спроби і відсотки виконання</span></a>
+    <a href="/teacher-dashboard/analytics/" class="quick-link feature-link"><b>Аналітика</b><span>Середній бал і активність</span></a>
+    <a href="/teacher-dashboard/export-grades/" class="quick-link feature-link"><b>Експорт CSV</b><span>Оцінки для таблиці Excel</span></a>
+</div>
+{% endblock %}

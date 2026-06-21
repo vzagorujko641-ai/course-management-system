@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}EduCourse{% endblock %}
+{% block header %}EduCourse{% endblock %}
+{% block subtitle %}Сучасна LMS для курсів, дедлайнів, тестів, груп і комунікації{% endblock %}
+
+{% block content %}
+<section class="hero-panel">
+    <div>
+        <span class="eyebrow">Learning Management System</span>
+        <h2>Навчання, завдання і прогрес в одному зручному просторі</h2>
+        <p>
+            Керуйте курсами, проходьте уроки, здавайте роботи, спілкуйтеся в чатах
+            і відстежуйте дедлайни без зайвих переходів.
+        </p>
+
+        <div class="hero-actions">
+            {% if user.is_authenticated %}
+                <a href="/dashboard/" class="btn">Мій кабінет</a>
+                <a href="/courses/" class="btn btn-dark">Каталог курсів</a>
+            {% else %}
+                <a href="/login/" class="btn">Увійти</a>
+                <a href="/register/" class="btn btn-dark">Зареєструватися</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <span class="badge badge-blue">Активна платформа</span>
+        <div class="hero-stat">
+            <b>{{ upcoming_deadlines }}</b>
+            <span>дедлайнів цього тижня</span>
+        </div>
+        <div class="hero-mini-grid">
+            <div>
+                <b>{{ late_deadlines }}</b>
+                <span>прострочено</span>
+            </div>
+            <div>
+                <b>{{ total_messages }}</b>
+                <span>повідомлень</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if user.is_authenticated %}
+    <div class="stats">
+        <div class="card metric-card">
+            <p>Дедлайни цього тижня</p>
+            <div class="number">{{ upcoming_deadlines }}</div>
+        </div>
+        <div class="card metric-card">
+            <p>Прострочені завдання</p>
+            <div class="number">{{ late_deadlines }}</div>
+        </div>
+        <div class="card metric-card">
+            <p>Повідомлення в курсах</p>
+            <div class="number">{{ total_messages }}</div>
+        </div>
+    </div>
+{% endif %}
+
+<div class="section-heading">
+    <span class="eyebrow">Навігація</span>
+    <h2>Швидкий доступ</h2>
+</div>
+
+<div class="quick-grid">
+    {% if user.is_authenticated %}
+        <a href="/dashboard/" class="quick-link feature-link">
+            <b>Мій кабінет</b>
+            <span>Курси, профіль, прогрес і відповіді</span>
+        </a>
+        <a href="/gradebook/" class="quick-link feature-link">
+            <b>Журнал оцінок</b>
+            <span>Оцінки за роботи та результати тестів</span>
+        </a>
+        <a href="/notifications/" class="quick-link feature-link">
+            <b>Повідомлення</b>
+            <span>Нові завдання, дедлайни і перевірки</span>
+        </a>
+        {% if user.role == 'teacher' or user.is_superuser %}
+            <a href="/teacher-dashboard/" class="quick-link feature-link">
+                <b>Кабінет викладача</b>
+                <span>Курси, групи, тести, матеріали й аналітика</span>
+            </a>
+        {% endif %}
+        <a href="/logout/" class="quick-link feature-link">
+            <b>Вийти</b>
+            <span>Завершити поточний сеанс</span>
+        </a>
+    {% else %}
+        <a href="/login/" class="quick-link feature-link">
+            <b>Вхід</b>
+            <span>Перейти до особистого кабінету</span>
+        </a>
+        <a href="/register/" class="quick-link feature-link">
+            <b>Реєстрація</b>
+            <span>Створити студентський обліковий запис</span>
+        </a>
+    {% endif %}
+    <a href="/courses/" class="quick-link feature-link">
+        <b>Каталог курсів</b>
+        <span>Пошук, категорії, викладачі й теги</span>
+    </a>
+    <a href="/calendar/" class="quick-link feature-link">
+        <b>Календар дедлайнів</b>
+        <span>Найближчі завдання та прострочення</span>
+    </a>
+</div>
+{% endblock %}

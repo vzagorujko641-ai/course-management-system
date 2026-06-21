@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Календар дедлайнів{% endblock %}
+{% block header %}Календар дедлайнів{% endblock %}
+{% block subtitle %}Інтерактивний список завдань із найближчими строками{% endblock %}
+
+{% block content %}
+<div class="card calendar-controls">
+    <button type="button" class="btn" data-filter="all">Усі</button>
+    <button type="button" class="btn btn-dark" data-filter="today">Сьогодні</button>
+    <button type="button" class="btn btn-dark" data-filter="soon">Найближчі</button>
+    <button type="button" class="btn btn-dark" data-filter="late">Прострочені</button>
+</div>
+
+<div class="calendar-grid">
+    {% for assignment in assignments %}
+        <div class="card calendar-item" data-status="{{ assignment.status_class }}">
+            <span class="badge badge-blue">{{ assignment.deadline }}</span>
+
+            {% if assignment.status_class == 'late' %}
+                <span class="badge badge-red">{{ assignment.status }}</span>
+            {% elif assignment.status_class == 'today' %}
+                <span class="badge badge-yellow">{{ assignment.status }}</span>
+            {% elif assignment.status_class == 'soon' %}
+                <span class="badge badge-blue">{{ assignment.status }}</span>
+            {% else %}
+                <span class="badge badge-green">{{ assignment.status }}</span>
+            {% endif %}
+
+            <h2>{{ assignment.title }}</h2>
+            <p>{{ assignment.description }}</p>
+            <p><b>Курс:</b> {{ assignment.course.title }}</p>
+            <a href="/courses/{{ assignment.course.id }}/" class="btn">Відкрити курс</a>
+        </div>
+    {% empty %}
+        <div class="empty">Дедлайнів поки немає.</div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.querySelectorAll('[data-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.filter;
+            document.querySelectorAll('.calendar-item').forEach((item) => {
+                item.style.display = filter === 'all' || item.dataset.status === filter ? '' : 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}
