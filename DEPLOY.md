@@ -1,49 +1,32 @@
-# Публікація EduCourse в інтернет
+# Публікація EduCourse на Render
 
-Найпростіший варіант для цього Django-проєкту: Render + PostgreSQL.
+Проєкт підготовлено до запуску як Render Blueprint разом із PostgreSQL.
 
-## 1. Завантажити код на GitHub
+## 1. Завантажити зміни на GitHub
 
-1. Створи репозиторій на GitHub.
-2. Завантаж туди папку `course_system`.
-3. Не завантажуй `.env`, `db.sqlite3`, `venv`, `media`, `staticfiles`.
-
-## 2. Створити базу даних PostgreSQL
-
-На Render створи PostgreSQL database і скопіюй `Internal Database URL`.
-
-## 3. Створити Web Service
-
-На Render створи `New Web Service` з GitHub-репозиторію.
-
-Build Command:
+Репозиторій уже має remote `origin`. Закоміть і відправ зміни:
 
 ```bash
-./build.sh
+git add course_system/settings.py render.yaml DEPLOY.md .gitignore
+git commit -m "Configure Render deployment"
+git push origin main
 ```
 
-Start Command:
+Якщо поточна гілка називається не `main`, у останній команді вкажи її назву.
 
-```bash
-gunicorn course_system.wsgi:application
-```
+## 2. Створити Blueprint на Render
 
-## 4. Додати Environment Variables
+1. У Render відкрий **New → Blueprint**.
+2. Підключи GitHub-репозиторій `course-management-system`.
+3. Render прочитає `render.yaml` і запропонує створити вебсервіс `educourse` та PostgreSQL `educourse-db`.
+4. Для `REGISTRATION_ACCESS_PASSWORD` введи власний пароль.
+5. Натисни **Deploy Blueprint**.
 
-```text
-DJANGO_SECRET_KEY=довгий-випадковий-секретний-ключ
-DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=назва-сайту.onrender.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://назва-сайту.onrender.com
-DJANGO_SECURE_SSL_REDIRECT=True
-DJANGO_SECURE_HSTS_SECONDS=31536000
-DATABASE_URL=Internal Database URL з Render PostgreSQL
-REGISTRATION_ACCESS_PASSWORD=пароль-для-реєстрації-студентів
-```
+Якщо ім'я `educourse` вже зайняте, Render додасть до адреси суфікс або запропонує іншу назву. Django автоматично підхопить фактичний домен із `RENDER_EXTERNAL_HOSTNAME`.
 
-## 5. Створити адміністратора
+## 3. Створити адміністратора
 
-Після першого деплою відкрий Render Shell і виконай:
+Після успішного деплою відкрий для вебсервісу **Shell** та виконай:
 
 ```bash
 python manage.py createsuperuser
@@ -51,4 +34,4 @@ python manage.py createsuperuser
 
 ## Важливо про файли
 
-Завантажені аватари, відео, PDF і роботи студентів у папці `media` на Render можуть зникати після перезапуску сервера. Для реального сайту потрібне окреме сховище файлів, наприклад S3-compatible storage. Для дипломної демонстрації можна показувати локально або без великих завантажень.
+PostgreSQL зберігає облікові записи, курси та оцінки. Завантажені аватари, відео, PDF та студентські роботи пишуться у локальну папку `media`, тому можуть зникнути після перезапуску або нового деплою Render. Для постійного зберігання потрібне зовнішнє сховище, наприклад Cloudinary або S3-сумісний сервіс.
